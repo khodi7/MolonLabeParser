@@ -1,5 +1,11 @@
+"""
+
+Todo:
+    * Create a province class
+"""
 import pandas as pd
 import ast
+from Parser import index_finder, closing_brackets
 
 
 def province_setup_edit(pop_file = "pop_data.csv", ter_file = "territory_data.csv"):
@@ -65,5 +71,24 @@ def province_setup_edit(pop_file = "pop_data.csv", ter_file = "territory_data.cs
         file.writelines(content)
 
 
-def edit_provinces(pop_file, province_file):    
-province_setup_edit()
+def edit_provinces(pop_file, ter_file, original_file):
+    """Modifies original_file according to other files
+    
+    Args:
+        pop_file(string): the name or path of the file containing the population
+        related data extracted from an I:R save.
+        ter_file(string): the name or path of the file containing the
+        territory related data extracted from an I:R save.
+        original_file(string):the name or path of the file to be modified.
+    
+    Returns:
+        None
+    """
+    with open(original_file):
+        content = original_file.readlines()
+    first_line = "provinces = { #Any entry must contain a comment with city "\
+                 "name.\n"
+    # Deleting the old content,
+    start_index = index_finder(content, first_line)
+    end_index = closing_brackets(content, start_index)
+    del content[start_index : end_index + 1]
