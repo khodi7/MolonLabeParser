@@ -1,13 +1,18 @@
 
-pop_data - Copie.csv
+temp.txt
+setup_orig.txt
+__pycache__/BuildingGroup.cpython-38.pyc
+__pycache__/Modifier.cpython-38.pyc
+__pycache__/Parser.cpython-38.pyc
+__pycache__/PopGroup.cpython-38.pyc
+__pycache__/Territory.cpython-38.pyc
+Building_ids.rome
+builds.txt
+pop_data.csv
+province_setup.csv
+province_setup_test.csv
+setup_test.txt
+territory_data.csv
+territory_data_2.csv
 .project
 .pydevproject
-__pycache__/Parser.cpython-38.pyc
-t.csv
-DoA debug.rome
-diplomacy_data.csv
-nsetup.txt
-territory_data_2.csv
-builds.txt
-Building_ids.rome
-territory_data.csv
