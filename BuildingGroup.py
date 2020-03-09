@@ -17,44 +17,45 @@ class BuildingGroup(object):
         self.amount = a
         self.name = n
     
-    def from_csv(self, a):
-        """Transforms a string into a list of BuildingGroup
+
+def from_csv(a):
+    """Transforms a string into a list of BuildingGroup
+    
+    Note : this function is not able to create BuildingGroup of the
+    following building types : foundry, granary, forum, theater,
+    tribal settlement and provincial legation.
+    
+    Args:
+        a(string): a string from the building column of a DataFrame created
+        by the create_territory_data_file function in the Parser module.
+        Such a string looks like this:
+        { 2 1 0 0 1 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 }
         
-        Note : this function is not able to create BuildingGroup of the
-        following building types : foundry, granary, forum, theater,
-        tribal settlement and provincial legation.
-        
-        Args:
-            a(string): a string from the building column of a DataFrame created
-            by the create_territory_data_file function in the Parser module.
-            Such a string looks like this:
-            { 2 1 0 0 1 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 }
-            
-        Returns:
-            list of BuildingGroup: a list of the BuildingGroup associated with
-            the a string.
-        """
-        a = a.strip(" {}")
-        builds = a.split()
-        lst = []
-        builds_dic = {0 : "military_building", 1 : "fortress_building",
-                      2 : "barracks_building", 3 : None,
-                      4 : "commerce_building", 5 : "town_hall_building",
-                      6 : "court_building", 7 : "academy_building", 8 : None,
-                      9 : "library_building", 10 : None,
-                      11 : "workshop_building", 12 : "temple_building",
-                      13 : None, 14 : "aqueduct_building",
-                      15 : "latifundia_building", 16 : "slave_mine_building",
-                      17 : "basic_settlement_infratructure_building", 18 : None,
-                      19 : None}
-        for i in range(len(builds)):
-            amount = int(builds[i])
-            if amount > 0:
-                name = builds_dic[i]
-                if name is not None:
-                    build = BuildingGroup(amount, name)
-                    lst.append(build)
-        return lst
+    Returns:
+        list of BuildingGroup: a list of the BuildingGroup associated with
+        the a string.
+    """
+    a = a.strip(" {}")
+    builds = a.split()
+    lst = []
+    builds_dic = {0 : "military_building", 1 : "fortress_building",
+                  2 : "barracks_building", 3 : None,
+                  4 : "commerce_building", 5 : "town_hall_building",
+                  6 : "court_building", 7 : "academy_building", 8 : None,
+                  9 : "library_building", 10 : None,
+                  11 : "workshop_building", 12 : "temple_building",
+                  13 : None, 14 : "aqueduct_building",
+                  15 : "latifundia_building", 16 : "slave_mine_building",
+                  17 : "basic_settlement_infratructure_building", 18 : None,
+                  19 : None}
+    for i in range(len(builds)):
+        amount = int(builds[i])
+        if amount > 0:
+            name = builds_dic[i]
+            if name is not None:
+                build = BuildingGroup(amount, name)
+                lst.append(build)
+    return lst
 
 # In game name      .csv string                                 Name in setup file
 # training camp     { 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 } military_building
