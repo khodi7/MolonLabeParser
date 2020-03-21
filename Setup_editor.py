@@ -131,6 +131,71 @@ def edit_territories(original_file, pop_file = "pop_data.csv",
         file.writelines(content)
 
 
+def edit_countries():
+#     Todo :
+#         - update localization for each country (can just add it at the end off
+#         the file) : need country name and tag
+#         - update the setup file
+#             - update the old countries(change territories owned) : need cores
+#             and capital
+#             - add new countries in setup file: need tag, government, culture,
+#             religion, cores, capital, centralization if tribe.
+#         - add the path to the new files of those countries and their id
+#         in the countries.txt file: need id and name
+#         - create new country files problem : names and colors
+    pass
+
+
+def edit_setup_countries(filename, country_dic):
+    """Changes the data related to countries in the file filename.
+    
+    Args:
+        filename(string): path to the setup file we want to edit.
+        country_dic(dictionary): obtained by the convert_country_df function
+        from the Country module.
+    
+    Returns:
+        None
+    """
+    pass
+
+
+def edit_countries_file(filename, country_dic):
+    """Modifies the countries txt file according to the data in country_dic.
+    
+    This function modifies the countries file by adding a line in it for each
+    new tag in country_dic and creates the file associated with it (storing it
+    at the right place relative to this program's repository.
+    
+    Note: the countries file is a .txt file in the common repository of I:R.
+    It contains every nation's tag associated with the path (from the repository
+    in which countries.txt is located) to a txt in which are located information
+    relating to the name of the ship or the color of this country.
+    The format of the lines of this file is as follow:
+    <tag> = "<path/to/the/file/of/this/country>"
+    i.e: THE = "countries/greece/thebes.txt"
+    
+    Args:
+        filename(string): path to the countries file to be modified
+        country_dic(dictionary): obtained by the convert_country_df function
+        from the Country module.
+    
+    Returns:
+        None
+    """
+    pass
+
+
+def new_country_file(country, path_to_new_file):
+    """Creates a new single country file at a given path.
+    
+    The new file has the same format as the other .txt files from the countries
+    repository.
+    
+    Args:
+        country(Country):
+
+
 def indent(string):
     """Create an indented version of string.
     
