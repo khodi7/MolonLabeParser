@@ -6,10 +6,13 @@ class Country():
         numbers.
         
         capital(int): the id of the capital territory of the country.
+        color(Color): the color of the country #New
         cores(list of int): the id of the territories with which the country
         starts the game with.
         culture(string)
+        gender_equality(boolean)
         government(string)
+        is_antagonist(boolean)
         name(string)
         religion(string)
         
@@ -29,7 +32,9 @@ class Country():
         self.__government = None
         self.__name = None
         self.__religion = None
+        
         self.__centralization = None
+        self.__is_antagonist = None
     
     @property
     def tag(self):
@@ -80,6 +85,17 @@ class Country():
         self.__government = ngov
     
     @property
+    def is_antagonist(self):
+        return self.__is_antagonist
+    
+    @is_antagonist.setter
+    def is_antagonist(self, n):
+        if type(n) == bool:
+            self.__is_antagonist = n
+        else:
+            raise TypeError("The is_antagonist attribute must be a boolean")
+    
+    @property
     def name(self):
         return self.__name
     
@@ -101,7 +117,7 @@ class Country():
 
     @property
     def centralization(self):
-        pass
+        return self.centralization
     
     @centralization.setter
     def centralization(self, ncen):
