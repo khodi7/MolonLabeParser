@@ -1,5 +1,7 @@
 import pandas as pd
 import ast
+import os
+from pathlib import Path
 from Parser import index_finder, closing_brackets
 from Territory import Territory
 
@@ -188,8 +190,32 @@ def new_country_file(country, path_to_new_file):
     folder.
     
     Args:
-        country(Country):
+        country(Country): the country we want to create a file for.
+        path_to_new_file(string): the path from the directory the program is
+        to the directory we want the file to be created in.
     """
+    # Creating the content of the file.
+    content = str(country.color)
+    content += "\n"
+    print(country.gender_equality)
+    if country.gender_equality:
+        content += "gender_equality = yes\n"
+        content += "\n"
+    content += "ship_names = {\n"
+    content += "\t#\n"
+    content += "}"
+    # Creating the path to the file.
+    prog_file = Path.cwd()
+    path = str(prog_file) + "\\" + path_to_new_file
+    print(path)
+    # Creating the folders needed.
+    Path(path).mkdir(parents=True, exist_ok=True)
+    name = "{}.txt".format(country.tag)
+    Path(path+name).touch(exist_ok=True)
+    os.chdir(path)
+    with open(name, "w") as file:
+        file.writelines(content)
+    os.chdir(prog_file)
 
 def indent(string):
     """Create an indented version of string.

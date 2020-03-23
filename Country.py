@@ -1,3 +1,7 @@
+import pandas as pd
+from Color import Color
+
+
 class Country():
     '''An I:R country.
     
@@ -27,8 +31,10 @@ class Country():
         '''
         self.__tag = tag
         self.__capital = None
+        self.color = None
         self.__cores = None
         self.__culture = None
+        self.__gender_equality = None
         self.__government = None
         self.__name = None
         self.__religion = None
@@ -75,8 +81,18 @@ class Country():
         self.__culture = ncul
     
     @property
+    def gender_equality(self):
+        return self.__gender_equality
+    
+    @gender_equality.setter
+    def gender_equality(self, n):
+        if type(n) != bool:
+            raise TypeError("The gender_equality attribute must be a boolean")
+        self.__gender_equality = n
+    
+    @property
     def government(self):
-        return self.__culture
+        return self.__government
     
     @government.setter
     def government(self, ngov):
@@ -149,14 +165,84 @@ class Country():
         country_data = country_df.loc[self.tag]
         # The index is the integer given by the save to each country. It is used
         # as an index in the territory DataFrame made by the parser module.
-        index = int(country_data["Unnamed: 0"])
-        self.capital = int(country_data["capital"])
-        # Getting the territories owned by the country
-        raw_cores = ter_df.at[index, ]
-    
+        try:
+            index = int(country_data["Unnamed: 0"])
+        # If there are several countries with the same tag,
+        # we terminate the function.
+        except TypeError:
+            return None
+            
+        raw_cap = country_data["capital"]
+        if not pd.isna(raw_cap):
+            self.capital = int(raw_cap)
+        col = Color()
+        col.from_csv(country_data["color"], country_data["color2"])
+        self.color = col
+        # Getting the territories owned by the country.
+        # The following line returns a Series object of the cores id's.
+        try:
+            raw_cores = ter_df.loc[index]["Unnamed: 0"]
+        except KeyError:
+            raw_cores = []
+        self.cores = []
+        try:
+            for core in raw_cores:
+                self.cores.append(int(core))
+        # If there's only one element in raw_cores.
+        except TypeError:
+            self.cores = [int(raw_cores)]
+        # raw_ variables are used when their value can be na.
+        raw_cul = country_data["primary_culture"]
+        if not pd.isna(raw_cul):
+            self.culture = raw_cul
+        gen_eq = country_data["gender_equality"]
+        if gen_eq == "yes":
+            self.gender_equality = True
+        elif gen_eq == "no":
+            self.gender_equality = False
+        raw_gov = country_data["government_key"]
+        if not pd.isna(raw_gov):
+            self.government = raw_gov
+        is_antag = country_data["is_antagonist"]
+        if is_antag == "yes":
+            self.is_antagonist = True
+        elif is_antag == "no":
+            self.is_antagonist = False
+        self.name = country_data["country_name"]
+        raw_rel = country_data["religion"]
+        if not pd.isna(raw_rel):
+            self.religion = raw_rel
+        self.centralization = int(country_data["centralization"])
+        
+        
     def __str__(self):
         """Returns a string of self in the setup.txt file format"""
-        pass
+        country_string = "{0} = {1}\n".format(self.tag, "{")
+        country_string += "\tgovernment = {0}\n".format(self.government)
+        if self.culture is not None:
+            country_string += "\tprimary_culture = {0}\n".format(self.culture)
+        if self.religion is not None:
+            country_string += "\treligion = {0}\n".format(self.religion)
+        country_string += "\n" # Blank line to fit the original patter.
+        if self.capital is not None:
+            country_string += "\tcapital = {0}\n".format(self.capital)
+        country_string += "\n"
+        # The cores requires some more complex programming because of its shape
+        # (I could probably ignore that and write it in one line but it wouldn't
+        # look as good so fuck it.
+        # No need to write the cores if there isn't any.
+        if self.cores is not None and len(self.cores) > 0:
+            country_string += "\town_control_core =  {\n"
+            country_string += "\t"
+            before = ""
+            for core in self.cores:
+                country_string += "{0}{1}".format(before, core)
+                before = " "
+            country_string += "\n"
+            country_string += "\t}\n"
+        # Closing the first bracket and ending the string.
+        country_string += "}\n"
+        return country_string
 
 
 def convert_country_df(country_df, ter_df):
@@ -168,10 +254,24 @@ def convert_country_df(country_df, ter_df):
         module and using the tag column to sort it.
         ter_df(DataFrame): a DataFrame obtained by reading the csv file
         generated by the create_territory_data_file function from the Parser
-        module and using the tag column to sort it.
+        module and using the owner column to sort it.
     
     Returns:
         Dictionary: for each entry of the dictionary, the key is the tag of the
         Country object associated with it (tag : Country).
     """
-    pass
+    to_return = {}
+    # We put every country into a dictionnary.
+    for tag in country_df.index:
+        country = Country(tag)
+        country.from_csv(country_df, ter_df)
+        to_return[tag] = country
+    return to_return
+
+
+# Test zone.
+if __name__ == "__main__":
+    country_df = pd.read_csv("diplomacy_data.csv", index_col = "tag")
+    ter_df = pd.read_csv("territory_data.csv", index_col = "owner")
+    for value in convert_country_df(country_df, ter_df).values():
+        print(value)
