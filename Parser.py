@@ -130,6 +130,8 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
                         special_cols=[], special_args=[]):
     """Creates a .csv of the diplomatic relations in an IR save file.
     
+    Note: need to be optimized for pops.
+    
     Args:
         file(str): file is a file name or path to an IR save file made while the
         game was in debug mode.
@@ -154,7 +156,12 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
     end_index = closing_brackets(content, index)
     lenght = end_index - start_index
     # Creating the DataFrame
-    df = pd.DataFrame(columns = cols) 
+    before_ei = end_index - 1
+    while content[before_ei].count("}") == 0:
+        before_ei -= 1
+    last_index = opening_brackets(content, before_ei)
+    last_id = int(content[last_index].split("=")[0].strip())
+    df = pd.DataFrame(index=range(0, last_id), columns = cols) 
     index += 1
     while index < end_index:
         if progress:
@@ -277,4 +284,5 @@ def opening_brackets(lst, index):
 
 
 if __name__ == "__main__":
+    create_territory_data_file(save_filename, progress = True)
     create_diplomacy_data_file(save_filename, progress = True)
