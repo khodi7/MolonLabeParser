@@ -1,8 +1,3 @@
-"""
-
-Todo:
-    * Create a province class
-"""
 import pandas as pd
 import ast
 from Parser import index_finder, closing_brackets
@@ -190,11 +185,11 @@ def new_country_file(country, path_to_new_file):
     """Creates a new single country file at a given path.
     
     The new file has the same format as the other .txt files from the countries
-    repository.
+    folder.
     
     Args:
         country(Country):
-
+    """
 
 def indent(string):
     """Create an indented version of string.
@@ -217,4 +212,4 @@ def indent(string):
 
 
 if __name__ == "__main__":
-    edit_territories("setup_orig.txt", progress=True)
+    province_setup_edit()
