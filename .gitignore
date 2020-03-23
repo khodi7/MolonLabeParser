@@ -17,3 +17,6 @@ territory_data_2.csv
 .project
 .pydevproject
 diplomacy_data.csv
+__pycache__/Setup_editor.cpython-38.pyc
+Tools/ListToDic.py
+__pycache__/Color.cpython-38.pyc
