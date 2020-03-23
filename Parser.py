@@ -3,7 +3,7 @@ import pandas as pd
 
 # Write here the path to the save file you want to parse,
 # You can only put its name if it is in the same repository as this program,
-save_filename = "test_save.rome"
+save_filename = "DoA debug.rome"
 
 
 def create_pop_data_file(file, progress = False, csv_name = "pop_data.csv"):
@@ -117,15 +117,17 @@ def create_diplomacy_data_file(file, progress = False,
             'loyal_cohorts', 'disloyal_cohorts', 'loyal_pops', 'defect_pops',
             'centralization', 'legitimacy', 'primary', 'second', 'flank',
             'last_war', 'last_battle_won', 'cached_happiness_for_owned',
-            'cached_pop_count_for_owned', 'pooled_army_power', 'ai', 'host_ai']
+            'cached_pop_count_for_owned', 'pooled_army_power', 'ai', 'host_ai',
+            'color', 'color2', 'modifier']
+    special_args = ["color"]
     df = create_IR_DataFrame(file, progress,
                              opening_line = "\tcountry_database={\n",
-                             cols = cols)
+                             cols = cols, special_args=special_args)
     df.to_csv(csv_name)
 
 
 def create_IR_DataFrame(file, progress, opening_line, cols,
-                        special_cols = []):
+                        special_cols=[], special_args=[]):
     """Creates a .csv of the diplomatic relations in an IR save file.
     
     Args:
@@ -151,18 +153,8 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
     start_index = index
     end_index = closing_brackets(content, index)
     lenght = end_index - start_index
-    before_ei = end_index - 1
-    found = False
-    line = content[before_ei].split("=")[0].strip()
-    while not found:
-        try:
-            last_id = int(line)
-            found = True
-        except ValueError:
-            before_ei -= 1
-            line = content[before_ei].split("=")[0].strip()
     # Creating the DataFrame
-    df = pd.DataFrame(index = range(1, last_id), columns = cols)
+    df = pd.DataFrame(columns = cols) 
     index += 1
     while index < end_index:
         if progress:
@@ -195,6 +187,13 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
                         except AttributeError:
                             df.at[label, key] = [int(value)]
                             index += 1
+                    elif key in special_args:
+                        df.at[label, key] = value.strip('"')
+                        # Next color.
+                        key = content[index].split("=")[1].split()[-1]
+                        value = content[index].split("=")[2].strip()
+                        df.at[label, key] = value.strip('"')
+                        index += 1
 
                     else:
                         df.at[label, key] = value.strip('"')
@@ -278,4 +277,4 @@ def opening_brackets(lst, index):
 
 
 if __name__ == "__main__":
-    create_territory_data_file(save_filename, progress = True, csv_name = "t.csv")
+    create_diplomacy_data_file(save_filename, progress = True)
