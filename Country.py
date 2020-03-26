@@ -217,16 +217,30 @@ class Country():
         
     def __str__(self):
         """Returns a string of self in the setup.txt file format"""
-        country_string = "{0} = {1}\n".format(self.tag, "{")
-        country_string += "\tgovernment = {0}\n".format(self.government)
+        country_string = ""
+        changed = False # Value used to know i the brackets contain anything.
+        # Checking if the country is valid: if it doesn't have any cores, it
+        # musts not have a capital.
+        if (self.capital != 0
+            and self.cores is not None
+            and len(self.cores) == 0):
+            return ""
+        if self.government is not None:
+            country_string += "\tgovernment = {0}\n".format(self.government)
+            changed = True
         if self.culture is not None:
             country_string += "\tprimary_culture = {0}\n".format(self.culture)
+            changed = True
         if self.religion is not None:
             country_string += "\treligion = {0}\n".format(self.religion)
-        country_string += "\n" # Blank line to fit the original patter.
-        if self.capital is not None:
+            changed = True
+        if changed:
+            country_string += "\n" # Blank line to fit the original patter.
+        if self.capital is not None and self.capital != 0:
             country_string += "\tcapital = {0}\n".format(self.capital)
-        country_string += "\n"
+            changed = True
+        if changed:
+            country_string += "\n"
         # The cores requires some more complex programming because of its shape
         # (I could probably ignore that and write it in one line but it wouldn't
         # look as good so fuck it.
@@ -240,8 +254,12 @@ class Country():
                 before = " "
             country_string += "\n"
             country_string += "\t}\n"
+            changed = True
         # Closing the first bracket and ending the string.
-        country_string += "}\n"
+        if changed:
+            country_string += "}\n"
+            country_string = ("{0} = {1}\n".format(self.tag, "{")
+                              + country_string)
         return country_string
 
 

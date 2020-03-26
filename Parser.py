@@ -210,7 +210,31 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
         else:
             index += 1
     return df
-                        
+
+
+def parse_countries(filename):
+    """Parse the countries.txt file
+    
+    Args:
+        filename(string): name of or path to
+        the original I:R countries.txt file.
+    
+    Returns:
+        dictionary: the keys are the valid country tags already in filename and
+        the values are None
+    """
+    with open(filename, "r") as file:
+        content = file.readlines()
+    dic = {}
+    for line in content:
+        # If we're on a line with an id.
+        if line.count("=") > 0:
+            tag = line.split("=")[0].strip()
+            # If the tag is valid.
+            if len(tag) == 3:
+                dic[tag] = None
+    return dic
+            
 
 def index_finder(lst, line):
     """Finds the index of line in file
@@ -284,5 +308,4 @@ def opening_brackets(lst, index):
 
 
 if __name__ == "__main__":
-    create_territory_data_file(save_filename, progress = True)
-    create_diplomacy_data_file(save_filename, progress = True)
+    pass

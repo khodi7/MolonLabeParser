@@ -2,16 +2,17 @@ import pandas as pd
 import ast
 import os
 from pathlib import Path
-from Parser import index_finder, closing_brackets
+from Country import convert_country_df
+from Parser import (index_finder, closing_brackets, create_territory_data_file,
+                    create_diplomacy_data_file, parse_countries)
 from Territory import Territory
 
 
 def province_setup_edit(pop_file = "pop_data.csv",
-                        ter_file = "territory_data.csv"):
-    """Modifies the province_setup.csv file
+                        ter_file = "territory_data.csv",
+                        original_province_file = "province_setup.csv"):
+    """Modifies the original_province_file file
     
-    Requires the province_setup.csv file to be in the same directory as the one
-    in which this function is executed.
     This file will be modified according to the data contained in pop_file and
     ter_file.
     
@@ -20,13 +21,15 @@ def province_setup_edit(pop_file = "pop_data.csv",
         related data extracted from an I:R save.
         ter_file(string): the name or path of the file containing the territory 
         related data extracted from an I:R save.
+        original_pronvince_file(string): name of or path to a copy of the
+        province_setup.csv file from the common directory of the I:R game files.
     
     Returns:
         None
     """
     ter_df = pd.read_csv(ter_file, index_col = "Unnamed: 0")
     pop_df = pd.read_csv(pop_file, index_col = "Unnamed: 0")
-    setup_df = pd.read_csv("province_setup.csv", index_col = "#ProvID")
+    setup_df = pd.read_csv(original_province_file, index_col = "#ProvID")
     dic = {" Culture" : "culture", " Religion" : "religion",
            " TradeGoods" : "trade_goods", " Citizen" : "pop",
            " Freedmen" : "pop", " Slaves" : "pop", " Tribesmen" : "pop",
@@ -128,7 +131,16 @@ def edit_territories(original_file, pop_file = "pop_data.csv",
         file.writelines(content)
 
 
-def edit_countries():
+def edit_countries(save_file, setup_file, countries_file,
+                   new_setup_file_name="setup.txt"):
+    """Creates new country related setup file according to save_filename's data.
+    
+    Args:
+        save_filename(string): name or path to an I:R save file.
+        setup_file(string): name or path to the old setup file.
+        country_file(string): name or path to the old countries.txt file.
+        new_setup_file_name(string): the name of the new setup file.
+    """
 #     Todo :
 #         - update localization for each country (can just add it at the end off
 #         the file) : need country name and tag
@@ -140,29 +152,58 @@ def edit_countries():
 #         - add the path to the new files of those countries and their id
 #         in the countries.txt file: need id and name
 #         - create new country files problem : names and colors
-    pass
+    # Updating/creating the csv files.
+    create_diplomacy_data_file(save_file, True)
+    create_territory_data_file(save_file, True)
+    country_df = pd.read_csv("diplomacy_data.csv", index_col = "tag")
+    ter_df = pd.read_csv("territory_data.csv", index_col = "owner")
+    country_dic = convert_country_df(country_df, ter_df)
+    # Editing the setup file.
+    edit_setup_countries(setup_file, country_dic, new_setup_file_name)
+    # Editing the countries file.
+    edit_countries_file(countries_file, country_dic)
 
 
-def edit_setup_countries(filename, country_dic):
-    """Changes the data related to countries in the file filename.
+def edit_setup_countries(setup_file, country_dic, new_file="setup_test.txt"):
+    """Creates a new file with the data in filename and country_dic
     
     Args:
-        filename(string): path to the setup file we want to edit.
+        setup_file(string): path to or name of the setup file we want to edit.
         country_dic(dictionary): obtained by the convert_country_df function
         from the Country module.
+        new_file(string): the name of the created file.
     
     Returns:
         None
     """
-    pass
+    raw_ncountries = "countries = {\n"
+    raw_ncountries += "\n"
+    for country in country_dic.values():
+        # If the country is not empty.
+        if str(country) != "":
+            raw_ncountries += indent(str(country))
+            raw_ncountries += "\n"
+    raw_ncountries += "}\n"
+    ncountries = indent(raw_ncountries)
+    with open(setup_file, "r") as file:
+        content = file.readlines()
+    # We find the part of content where the countries section is.
+    section_start = index_finder(content, "\tcountries = {\n")
+    section_end = closing_brackets(content, section_start)
+    # We replace the old countries section with the new one.
+    content = (content[:section_start] + [ncountries]
+               + content[section_end+1:])
+    # Generating the new file.
+    with open(new_file, "w") as file:
+        file.writelines(content)
 
 
 def edit_countries_file(filename, country_dic):
-    """Modifies the countries txt file according to the data in country_dic.
+    """Creates a new countries txt file according to the data in country_dic.
     
-    This function modifies the countries file by adding a line in it for each
+    This function creates a new countries file by adding a line in it for each
     new tag in country_dic and creates the file associated with it (storing it
-    at the right place relative to this program's repository.
+    at the right place relative to this program's repository).
     
     Note: the countries file is a .txt file in the common repository of I:R.
     It contains every nation's tag associated with the path (from the repository
@@ -180,7 +221,25 @@ def edit_countries_file(filename, country_dic):
     Returns:
         None
     """
-    pass
+    # The old country tags.
+    already_there = parse_countries(filename)
+    with open(filename, "r") as file:
+        content = file.readlines()
+    content += "\n"
+    for country in country_dic.values():
+        valid_country = (country.capital == 0
+                         or (country.cores is not None and len(country.cores) > 0))
+        if country.tag not in already_there and valid_country:
+            path = new_country_file(country, "countries\\DoA_mod\\")
+            path = path.split("\\")
+            npath = ""
+            for i in path:
+                npath += i + "/"
+            path = npath[:-1]
+            content += '{} = "{}"\n'.format(country.tag, path)
+    # Updating the country file.
+    with open("countries.txt", "w") as file:
+        file.writelines(content)
 
 
 def new_country_file(country, path_to_new_file):
@@ -193,11 +252,13 @@ def new_country_file(country, path_to_new_file):
         country(Country): the country we want to create a file for.
         path_to_new_file(string): the path from the directory the program is
         to the directory we want the file to be created in.
+    
+    Returns:
+        string: the path to the new file.
     """
     # Creating the content of the file.
     content = str(country.color)
     content += "\n"
-    print(country.gender_equality)
     if country.gender_equality:
         content += "gender_equality = yes\n"
         content += "\n"
@@ -207,7 +268,6 @@ def new_country_file(country, path_to_new_file):
     # Creating the path to the file.
     prog_file = Path.cwd()
     path = str(prog_file) + "\\" + path_to_new_file
-    print(path)
     # Creating the folders needed.
     Path(path).mkdir(parents=True, exist_ok=True)
     name = "{}.txt".format(country.tag)
@@ -216,6 +276,8 @@ def new_country_file(country, path_to_new_file):
     with open(name, "w") as file:
         file.writelines(content)
     os.chdir(prog_file)
+    return path_to_new_file + name
+
 
 def indent(string):
     """Create an indented version of string.
@@ -238,4 +300,5 @@ def indent(string):
 
 
 if __name__ == "__main__":
-    province_setup_edit()
+    edit_countries("DoA debug.rome", "setup.txt", "countries.txt",
+                   "setup.txt")
