@@ -6,13 +6,14 @@ import pandas as pd
 save_filename = "DoA debug.rome"
 
 
-def create_pop_data_file(file, progress = False, csv_name = "pop_data.csv"):
+def create_pop_data_file(file, progress = False):
     """Creates a .csv of the pops in an IR save file.
     
     Args:
-        file(str): file is a file name or path to an IR save file made while the game was in debug mode.
-        progress(boolean): indicates wheter or not the progress of the function should be shown in the console
-        csv_name(string): the name of the file in wich the data will be saved. Please use a .csv extension if you decide to change the default name.
+        file(str): file is a file name or path to an IR save file made while
+        the game was in debug mode.
+        progress(boolean): indicates wheter or not the progress of the function
+        should be shown in the console
     
     Returns:
         None
@@ -21,24 +22,21 @@ def create_pop_data_file(file, progress = False, csv_name = "pop_data.csv"):
     cols = ["type", "culture", "religion"]
     df = create_IR_DataFrame(file, progress, opening_line = "\tpopulation={\n",
                              cols = cols)
-    df.to_csv(csv_name)
+    return df
 
         
 
-def create_territory_data_file(file, progress = False,
-                               csv_name = "territory_data.csv"):
-    """Creates a .csv of the territories in an IR save file.
+def create_territory_data_file(file, progress = False):
+    """Creates a DataFrame of the territories in an IR save file.
     
     Args:
         file(str): file is a file name or path to an IR save file made while the
         game was in debug mode.
         progress(boolean): indicates wheter or not the progress of the function
-        should be shown in the console
-        csv_name(string): the name of the file in wich the data will be saved.
-        Please use a .csv extension if you decide to change the default name.
+        should be shown in the console.
     
     Returns:
-        None
+        DataFrame
     """
     cols = ['state', 'owner', 'controller', 'last_owner_change',
             'last_controller_change', 'claim', 'original_culture',
@@ -52,12 +50,11 @@ def create_territory_data_file(file, progress = False,
     df = create_IR_DataFrame(file, progress,
                              opening_line = "provinces={\n",
                              cols = cols, special_cols = "pop")
-    df.to_csv(csv_name)
+    return df
 
 
-def create_diplomacy_data_file(file, progress = False,
-                               csv_name = "diplomacy_data.csv"):
-    """Creates a .csv of the diplomatic relations in an IR save file.
+def create_diplomacy_data_file(file, progress = False):
+    """Creates a DataFrame of the diplomatic relations in an IR save file.
     
     Args:
         file(str): file is a file name or path to an IR save file made while the
@@ -68,7 +65,7 @@ def create_diplomacy_data_file(file, progress = False,
         Please use a .csv extension if you decide to change the default name.
     
     Returns:
-        None
+        DataFrame
     """
     # Creating the DataFrame
     cols = ['tag', 'historical', 'country_name', 'flag', 'coat_of_arms',
@@ -123,7 +120,7 @@ def create_diplomacy_data_file(file, progress = False,
     df = create_IR_DataFrame(file, progress,
                              opening_line = "\tcountry_database={\n",
                              cols = cols, special_args=special_args)
-    df.to_csv(csv_name)
+    return df
 
 
 def create_IR_DataFrame(file, progress, opening_line, cols,
@@ -194,6 +191,7 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
                         except AttributeError:
                             df.at[label, key] = [int(value)]
                             index += 1
+                    # The behaviour must be changed.
                     elif key in special_args:
                         df.at[label, key] = value.strip('"')
                         # Next color.
