@@ -44,6 +44,12 @@ def unparse_pops(df):
     """
     pass
 
-def unparse_IR_DataFrame(df, special_cols, special_args):
-    """Opposite of create_IR_DataFrame"""
+def unparse_IR_DataFrame(df, special_cols, special_args, indent_level):
+    """Opposite of create_IR_DataFrame
+    
+    Args:
+    df(DataFrame): a DataFrame created in the Parser module.
+    special_cols(list of strings): columns needing to be rewritten differently.
+    special_args(list of strings): columns needing to be rewritten differently.
+    """
     pass
