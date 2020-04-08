@@ -191,13 +191,10 @@ def create_IR_DataFrame(file, progress, opening_line, cols,
                         except AttributeError:
                             df.at[label, key] = [int(value)]
                             index += 1
-                    # The behaviour must be changed.
                     elif key in special_args:
-                        df.at[label, key] = value.strip('"')
-                        # Next color.
-                        key = content[index].split("=")[1].split()[-1]
-                        value = content[index].split("=")[2].strip()
-                        df.at[label, key] = value.strip('"')
+                        line = content[index]
+                        value = line[line.find("=")+1:]
+                        df.at[label, key] = value
                         index += 1
 
                     else:
