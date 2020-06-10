@@ -303,4 +303,6 @@ def opening_brackets(lst, index):
 
 
 if __name__ == "__main__":
-    pass
+    filename = input("Please enter the filename of the save you want to parse.")
+    df = create_diplomacy_data_file(filename, True)
+    df.to_csv("Country_data.csv")
